@@ -42,8 +42,14 @@ Pipeline en 2 étages découplés :
 └─────────────┘                        └──────────────────────────────┘
 ```
 
-- **matcha** = partie pénible : fetch multi-sources, dédup ("déjà vu"), tag
-  popularité 🔥. **Résumé LLM désactivé** : on veut les items bruts.
+- **matcha** = partie pénible : fetch multi-sources, dédup ("déjà vu" via sa
+  base sqlite), tag popularité. **Résumé LLM, reading time, images, instapaper
+  désactivés** : on veut les items bruts.
+- **Signal popularité (contrainte réelle, vérifiée dans le code matcha)** :
+  matcha n'écrit **pas** le nombre de points/commentaires dans le markdown. Sur
+  les items Hacker News uniquement, il préfixe un icône : `💬` (<100
+  commentaires) ou `🔥` (≥100). Notre signal popularité est donc un **booléen
+  `hot`** (🔥 présent), pas un nombre. Les items non-HN n'ont aucun signal.
 - **veilleur** (Python) = toute la curation.
 - **Couplage = un seul point** : le format markdown de matcha, isolé dans
   `digest_parser.py` + testé sur fixtures. Une maj matcha qui change le format
@@ -54,7 +60,7 @@ Pipeline en 2 étages découplés :
 ## Data flow
 
 1. **matcha** tourne → digest brut dans un dossier de travail.
-2. **Parse** → `list[Item {titre, url, source, popularité}]`.
+2. **Parse** → `list[Item {titre, url, source, hot: bool}]`.
 3. **Index vault** → scan `30_Permanent_Notes/`, extraction
    `{titre, 💡 concept, tags}` → index compact (mis en cache, reconstruit si le
    vault a changé).
@@ -151,7 +157,7 @@ tags:
 > 7 articles retenus sur 42 analysés.
 
 ## [Titre de l'article](url)
-**Source :** Hacker News · 312 pts · **Score :** 8/10
+**Source :** Hacker News · 🔥 · **Score :** 8/10
 **Tags :** rust, distributed-systems
 
 Résumé en français, 2-3 phrases.
