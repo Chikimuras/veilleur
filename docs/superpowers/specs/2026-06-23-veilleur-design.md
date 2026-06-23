@@ -123,24 +123,53 @@ Secrets (clé API Anthropic) via variable d'environnement.
 - Cron/launchd quotidien à **7h** : `matcha && veilleur`.
 - Plateforme : macOS (launchd, cohérent avec le setup SketchyBar existant).
 
-## Format de la note de sortie (esquisse)
+## Format de la note de sortie
+
+Aligné sur les conventions du vault (`AGENTS.md` + templates) :
+
+- **Nom** : `YYYY-MM-DD-veille.md` dans `00_Inbox/` (distinct de la daily note
+  `YYYY-MM-DD.md`).
+- **Frontmatter** : `type: veille` (nouveau type capture — les 4 existants ne
+  collent pas), `status: ⏳` (capture non traitée, en attente de promotion),
+  `date` ISO, `tags` en array. Le `type != "daily"` fait que la note apparaît
+  automatiquement dans le dataview "Notes Créées Aujourd'hui" de la daily note.
+- **H1 emoji-préfixé** (façon `📅` de la daily) : `📡 Veille — YYYY-MM-DD`.
+- **Heading `## 🔗 Connexions` repris à l'identique** du `Tpl_Permanent_Note`
+  → promouvoir un item en note permanente = copier-coller.
 
 ```markdown
 ---
-date: 2026-06-23
 type: veille
+status: ⏳
+date: 2026-06-23
+tags:
+  - veille
 ---
 
-# Veille — 2026-06-23
+# 📡 Veille — 2026-06-23
+
+> 7 articles retenus sur 42 analysés.
 
 ## [Titre de l'article](url)
-**Source:** Hacker News (312 pts) · **Score:** 8/10
+**Source :** Hacker News · 312 pts · **Score :** 8/10
+**Tags :** rust, distributed-systems
 
-Résumé en français…
+Résumé en français, 2-3 phrases.
 
-**Pourquoi :** …
-**Connexions :** [[Note permanente existante]] — pourquoi ça résonne.
+**Pourquoi pour toi :** lien avec l'objectif d'expertise du profil.
+
+### 🔗 Connexions
+- [[Note permanente existante]] — pourquoi ça résonne.
+
+---
+
+## [Autre article](url)
+…
 ```
+
+Quand aucune connexion n'est trouvée (vault jeune), la section `🔗 Connexions`
+liste un `[[ ]]` vide (comme le template) plutôt que d'être absente — invite à
+wirer manuellement.
 
 ## Hors scope (YAGNI pour le MVP)
 
