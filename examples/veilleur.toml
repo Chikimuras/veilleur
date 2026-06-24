@@ -1,0 +1,16 @@
+# Copy to ~/.config/veilleur/veilleur.toml and edit paths.
+model = "claude-sonnet-4-6"
+triage_threshold = 6
+max_items = 10
+
+vault = "/Users/alexandrevelia/Library/Mobile Documents/iCloud~md~obsidian/Documents/2nd Brain"
+permanent_notes = "30_Permanent_Notes"   # relative to vault
+inbox = "00_Inbox"                        # relative to vault
+interests = "~/.config/veilleur/interests.md"
+work_dir = "~/.local/state/veilleur"
+
+matcha_bin = "matcha"
+matcha_version = "v0.9.0"                 # bump to upgrade matcha
+matcha_config = "~/.config/veilleur/matcha.yaml"
+matcha_file_prefix = ""
+matcha_file_suffix = ""

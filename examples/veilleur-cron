@@ -1,0 +1,5 @@
+#!/bin/zsh
+# Pull the API key from Keychain (stored via:
+#   security add-generic-password -a "$USER" -s anthropic-api-key -w 'sk-ant-...')
+export ANTHROPIC_API_KEY="$(security find-generic-password -s anthropic-api-key -w)"
+exec "$HOME/.local/bin/veilleur"

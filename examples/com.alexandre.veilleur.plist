@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.alexandre.veilleur</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/alexandrevelia/.local/bin/veilleur-cron</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/alexandrevelia/.local/state/veilleur/veilleur.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/alexandrevelia/.local/state/veilleur/veilleur.err.log</string>
+</dict>
+</plist>

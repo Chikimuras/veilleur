@@ -1,0 +1,14 @@
+markdown_dir_path: /Users/alexandrevelia/.local/state/veilleur
+markdown_file_prefix:
+markdown_file_suffix:
+feeds:
+  - http://hnrss.org/best 15
+  - https://lobste.rs/rss
+  - https://tonsky.me/blog/atom.xml
+  - https://jvns.ca/atom.xml
+instapaper: false
+reading_time: false
+show_images: false
+terminal_mode: false
+# Intentionally NO openai_api_key / summary_feeds / analyst_feeds:
+# summarization is veilleur's job, not matcha's.
