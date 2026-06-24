@@ -9,7 +9,8 @@ inbox = "00_Inbox"                        # relative to vault
 interests = "~/.config/veilleur/interests.md"
 work_dir = "~/.local/state/veilleur"
 
-matcha_bin = "matcha"
+matcha_bin = "matcha"   # use the ABSOLUTE path (e.g. /Users/you/go/bin/matcha)
+                        # when scheduling via launchd — its PATH lacks ~/go/bin
 matcha_version = "v0.9.0"                 # bump to upgrade matcha
 matcha_config = "~/.config/veilleur/matcha.yaml"
 matcha_file_prefix = ""
