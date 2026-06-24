@@ -3,7 +3,7 @@ import re
 from .models import Item
 
 _LINK = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
-_HEADER = re.compile(r"^#{2,3}\s+(.*)$")
+_HEADER = re.compile(r"^###\s+(.*)$")
 _IMG = re.compile(r"<img[^>]*>")
 _ICONS = {"💬", "🔥"}
 
