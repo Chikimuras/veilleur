@@ -93,6 +93,30 @@ def test_reuses_existing_digest_without_running_matcha(tmp_path, monkeypatch):
     assert "Rust async internals" in note.read_text(encoding="utf-8")
 
 
+def test_runs_matcha_when_no_digest_present(tmp_path, monkeypatch):
+    # The daily cron path: no --date, today's digest absent => matcha must run,
+    # and main() must use run_matcha's returned path to produce today's note.
+    from datetime import date
+
+    cfg, inbox = _wire(tmp_path, monkeypatch)
+    today = date.today().isoformat()
+    today_digest = cfg.work_dir / f"{today}.md"  # absent (_wire pre-created 2026-06-23.md)
+    called = {"matcha": False}
+
+    def fake_run(c, today=None):
+        called["matcha"] = True
+        today_digest.write_text(DIGEST, encoding="utf-8")
+        return today_digest
+
+    monkeypatch.setattr(main_mod.matcha_runner, "run_matcha", fake_run)
+    rc = main_mod.main([])
+    assert rc == 0
+    assert called["matcha"] is True
+    note = inbox / f"{today}-veille.md"
+    assert note.exists()
+    assert "Rust async internals" in note.read_text(encoding="utf-8")
+
+
 def test_force_overwrites_existing_note(tmp_path, monkeypatch):
     cfg, inbox = _wire(tmp_path, monkeypatch)
     # Pre-create the digest so --date doesn't hit the return-1 path.
