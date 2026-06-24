@@ -1,5 +1,13 @@
 #!/bin/zsh
-# Pull the API key from Keychain (stored via:
+# launchd wrapper for veilleur. launchd's PATH lacks ~/.local/bin and ~/go/bin,
+# so use absolute paths throughout.
+#
+# API key from Keychain (stored via:
 #   security add-generic-password -a "$USER" -s anthropic-api-key -w 'sk-ant-...')
 export ANTHROPIC_API_KEY="$(security find-generic-password -s anthropic-api-key -w)"
-exec "$HOME/.local/bin/veilleur"
+
+# Run the repo code via uv (always latest; matcha_bin is absolute in
+# veilleur.toml so matcha is found regardless of PATH). Adjust the repo path
+# and the uv path (`command -v uv`) to your machine.
+cd "$HOME/veilleur" || exit 1
+exec "$HOME/.local/bin/uv" run veilleur
