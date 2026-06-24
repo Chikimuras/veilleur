@@ -1,6 +1,15 @@
 from . import llm
 from .models import Connection, Item
 
+
+def _clean_note_title(raw: str) -> str:
+    """Strip any surrounding [[ ]] the LLM may echo from the vault index, so the
+    renderer wraps the title exactly once (avoids broken [[[[...]]]] wikilinks)."""
+    title = raw.strip()
+    if title.startswith("[[") and title.endswith("]]"):
+        title = title[2:-2].strip()
+    return title
+
 _SYSTEM = (
     "Tu es l'assistant de veille d'un ingénieur. Pour un article donné, tu "
     "produis un résumé en français, expliques pourquoi il vaut son temps au "
@@ -33,7 +42,7 @@ def enrich_item(item, vault_index_str, client, model, fetch):
     item.summary = data.get("summary", "")
     item.why = data.get("why", "")
     item.connections = [
-        Connection(note_title=c["note"], reason=c.get("reason", ""))
+        Connection(note_title=_clean_note_title(c["note"]), reason=c.get("reason", ""))
         for c in data.get("connections", [])
     ]
     return item

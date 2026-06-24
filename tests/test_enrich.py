@@ -2,6 +2,23 @@ from veilleur import enrich as enrich_mod
 from veilleur.models import Item
 
 
+def test_connection_titles_are_unwrapped(monkeypatch):
+    # The LLM sometimes echoes the [[ ]] from the vault index; enrich must strip
+    # it so the renderer doesn't produce broken [[[[...]]]] wikilinks.
+    payload = {
+        "summary": "s", "why": "w",
+        "connections": [
+            {"note": "[[Une note entourée]]", "reason": "r1"},
+            {"note": "Une note nue", "reason": "r2"},
+        ],
+    }
+    monkeypatch.setattr(enrich_mod.llm, "call_json", lambda *a, **k: payload)
+    it = Item(title="T", url="u", source="HN")
+    out = enrich_mod.enrich_item(it, "index", None, "m", fetch=lambda url: "body")
+    assert out.connections[0].note_title == "Une note entourée"
+    assert out.connections[1].note_title == "Une note nue"
+
+
 def test_enriches_summary_why_and_connections(monkeypatch):
     payload = {
         "summary": "Un résumé clair.",
