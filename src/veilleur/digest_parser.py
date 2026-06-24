@@ -15,7 +15,7 @@ def _clean_source(raw: str) -> str:
 
 def parse_digest(markdown: str) -> list[Item]:
     items: list[Item] = []
-    source = "Inconnu"
+    source = "Inconnu"  # fallback if a link appears before any feed header
     for raw in markdown.splitlines():
         line = raw.strip()
         if not line:

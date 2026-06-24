@@ -31,7 +31,10 @@ def _wire(tmp_path, monkeypatch):
     )
     monkeypatch.setattr(main_mod.config, "load_config", lambda p: cfg)
 
+    # Pre-create the digest so --date paths find it without running matcha.
     digest = work / "2026-06-23.md"
+    digest.write_text(DIGEST, encoding="utf-8")
+    # run_matcha stub is still needed for no-arg (today's date) code paths.
     monkeypatch.setattr(main_mod.matcha_runner, "run_matcha",
                         lambda c, today=None: (digest.write_text(DIGEST), digest)[1])
     monkeypatch.setattr(main_mod.llm, "make_client", lambda key: object())
@@ -68,3 +71,38 @@ def test_idempotent_skip_without_force(tmp_path, monkeypatch):
     rc = main_mod.main(["--date", "2026-06-23"])
     assert rc == 0
     assert (inbox / "2026-06-23-veille.md").read_text(encoding="utf-8") == "déjà là"
+
+
+def test_reuses_existing_digest_without_running_matcha(tmp_path, monkeypatch):
+    cfg, inbox = _wire(tmp_path, monkeypatch)
+    # Pre-create the digest file so main() reuses it instead of calling run_matcha.
+    digest = cfg.work_dir / "2026-06-23.md"
+    digest.write_text(DIGEST, encoding="utf-8")
+    # If run_matcha is called, the test fails — the digest already exists.
+    monkeypatch.setattr(
+        main_mod.matcha_runner,
+        "run_matcha",
+        lambda c, today=None: (_ for _ in ()).throw(
+            AssertionError("run_matcha must not be called when digest already exists")
+        ),
+    )
+    rc = main_mod.main(["--date", "2026-06-23"])
+    assert rc == 0
+    note = inbox / "2026-06-23-veille.md"
+    assert note.exists()
+    assert "Rust async internals" in note.read_text(encoding="utf-8")
+
+
+def test_force_overwrites_existing_note(tmp_path, monkeypatch):
+    cfg, inbox = _wire(tmp_path, monkeypatch)
+    # Pre-create the digest so --date doesn't hit the return-1 path.
+    digest = cfg.work_dir / "2026-06-23.md"
+    digest.write_text(DIGEST, encoding="utf-8")
+    # Pre-create the note with sentinel content.
+    note = inbox / "2026-06-23-veille.md"
+    note.write_text("SENTINEL", encoding="utf-8")
+    rc = main_mod.main(["--date", "2026-06-23", "--force"])
+    assert rc == 0
+    text = note.read_text(encoding="utf-8")
+    assert "SENTINEL" not in text
+    assert "Rust async internals" in text

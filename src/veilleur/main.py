@@ -30,7 +30,21 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Note déjà présente: {note_path} (utilise --force pour réécrire)")
         return 0
 
-    digest_path = matcha_runner.run_matcha(cfg, today=today)
+    # matcha only ever produces TODAY's digest. If a digest file for `today`
+    # already exists in work_dir, reuse it (re-render, --force, or an explicit
+    # --date for a day already fetched); otherwise run matcha to produce it.
+    digest_path = (
+        cfg.work_dir / f"{cfg.matcha_file_prefix}{today}{cfg.matcha_file_suffix}.md"
+    )
+    if not digest_path.exists():
+        if args.date:
+            print(
+                f"Aucun digest matcha pour {today} ({digest_path}). "
+                "matcha ne produit que le digest du jour ; --date sert à "
+                "re-générer la note d'un digest déjà présent."
+            )
+            return 1
+        digest_path = matcha_runner.run_matcha(cfg, today=today)
     items = digest_parser.parse_digest(digest_path.read_text(encoding="utf-8"))
     n_analyzed = len(items)
     if not items:
@@ -52,5 +66,5 @@ def main(argv: list[str] | None = None) -> int:
     note = render.render_note(kept, today, n_analyzed)
     note_path.parent.mkdir(parents=True, exist_ok=True)
     note_path.write_text(note, encoding="utf-8")
-    print(f"Écrit: {note_path} ({len(kept)} items retenus sur {n_analyzed})")
+    print(f"Écrit: {note_path} ({len(kept)} articles retenus sur {n_analyzed})")
     return 0
