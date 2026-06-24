@@ -47,13 +47,19 @@ def test_format_index_is_compact_wikilink_listing(tmp_path):
     assert "tags: rust, concurrence" in out
 
 
-def test_cache_hit_avoids_reparse(tmp_path):
+def test_cache_hit_avoids_reparse(tmp_path, monkeypatch):
+    import veilleur.vault_index as vi
+
     d = _make_vault(tmp_path)
     cache = tmp_path / "cache.json"
     first = build_index_cached(d, cache)
     assert cache.exists()
-    # Corrupt the source note; cache hit must return the OLD parse.
-    (d / "Le borrow checker garantit l'absence de data races.md").write_text(
-        NOTE, encoding="utf-8")  # rewrite identical content => same signature
+
+    # Files untouched => same signature => the second call MUST hit the cache
+    # and never call build_index.
+    def _boom(*args, **kwargs):
+        raise AssertionError("build_index called despite a valid cache")
+
+    monkeypatch.setattr(vi, "build_index", _boom)
     second = build_index_cached(d, cache)
     assert [n.title for n in first] == [n.title for n in second]

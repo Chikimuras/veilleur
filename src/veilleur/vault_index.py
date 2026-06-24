@@ -21,7 +21,7 @@ def _parse_concept(text: str) -> str:
         return ""
     body = m.group(1).strip()
     # Strip leading blockquote markers and whitespace from each line.
-    lines = [ln.lstrip("> ").strip() for ln in body.splitlines()]
+    lines = [re.sub(r"^>\s*", "", ln).strip() for ln in body.splitlines()]
     return " ".join(ln for ln in lines if ln)
 
 
