@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- macOS launchd job: run veilleur daily at 07:00.
+     Replace YOUR_USER with your username (launchd needs absolute paths).
+     Copy to ~/Library/LaunchAgents/ then: launchctl load <this file>. -->
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.alexandre.veilleur</string>
+    <string>com.example.veilleur</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/Users/alexandrevelia/.local/bin/veilleur-cron</string>
+        <string>/Users/YOUR_USER/.local/bin/veilleur-cron</string>
     </array>
     <key>EnvironmentVariables</key>
     <dict>
@@ -22,8 +25,8 @@
         <integer>0</integer>
     </dict>
     <key>StandardOutPath</key>
-    <string>/Users/alexandrevelia/.local/state/veilleur/veilleur.log</string>
+    <string>/Users/YOUR_USER/.local/state/veilleur/veilleur.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/alexandrevelia/.local/state/veilleur/veilleur.err.log</string>
+    <string>/Users/YOUR_USER/.local/state/veilleur/veilleur.err.log</string>
 </dict>
 </plist>

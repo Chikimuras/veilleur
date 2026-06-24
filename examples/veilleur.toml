@@ -1,17 +1,18 @@
-# Copy to ~/.config/veilleur/veilleur.toml and edit paths.
+# Copy to ~/.config/veilleur/veilleur.toml and edit the paths.
 model = "claude-sonnet-4-6"
-triage_threshold = 6
-max_items = 10
+triage_threshold = 6          # keep items scoring >= this (0-10)
+max_items = 10                # cap on items kept per day
 
-vault = "/Users/alexandrevelia/Library/Mobile Documents/iCloud~md~obsidian/Documents/2nd Brain"
-permanent_notes = "30_Permanent_Notes"   # relative to vault
-inbox = "00_Inbox"                        # relative to vault
+# Path to your Obsidian vault (or any folder of markdown notes).
+vault = "/path/to/your/obsidian-vault"
+permanent_notes = "30_Permanent_Notes"   # relative to vault: notes scanned for connections
+inbox = "00_Inbox"                        # relative to vault: where the daily note is written
 interests = "~/.config/veilleur/interests.md"
-work_dir = "~/.local/state/veilleur"
+work_dir = "~/.local/state/veilleur"      # scratch dir (matcha output + index cache)
 
 matcha_bin = "matcha"   # use the ABSOLUTE path (e.g. /Users/you/go/bin/matcha)
                         # when scheduling via launchd — its PATH lacks ~/go/bin
-matcha_version = "v0.9.0"                 # bump to upgrade matcha
+matcha_version = "v0.9.0"                  # bump to upgrade matcha
 matcha_config = "~/.config/veilleur/matcha.yaml"
 matcha_file_prefix = ""
 matcha_file_suffix = ""

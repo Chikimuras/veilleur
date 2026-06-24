@@ -1,11 +1,24 @@
-markdown_dir_path: /Users/alexandrevelia/.local/state/veilleur
+# Copy to ~/.config/veilleur/matcha.yaml and edit the feeds to taste.
+#
+# markdown_dir_path MUST equal veilleur's work_dir. matcha (Go) does not expand
+# `~`, so use an absolute path here.
+markdown_dir_path: /Users/YOUR_USER/.local/state/veilleur
 markdown_file_prefix:
 markdown_file_suffix:
+
+# `<feed-url> <limit>` — limit caps items pulled per feed. Hacker News (hnrss)
+# is where the popularity 🔥 signal comes from. This is a sample, swap in your own.
 feeds:
-  - http://hnrss.org/best 15
-  - https://lobste.rs/rss
-  - https://tonsky.me/blog/atom.xml
-  - https://jvns.ca/atom.xml
+  # — Hubs (popularity 🔥 on Hacker News) —
+  - http://hnrss.org/best 25
+  - https://lobste.rs/rss 25
+  # — Example domain feeds —
+  - https://this-week-in-rust.org/atom.xml 1
+  - https://danluu.com/atom.xml 5
+  - https://jvns.ca/atom.xml 5
+  - https://blog.cloudflare.com/rss/ 8
+  - https://www.schneier.com/feed/atom/ 6
+
 instapaper: false
 reading_time: false
 show_images: false

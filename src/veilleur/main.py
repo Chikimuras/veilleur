@@ -1,3 +1,14 @@
+"""Orchestrator and CLI entry point.
+
+Wires the pipeline together: load config → (idempotency check) → obtain matcha's
+digest → parse → triage → enrich the shortlist → render → write the daily note.
+
+CLI:
+    veilleur                 # generate today's note (skips if it already exists)
+    veilleur --force         # regenerate / overwrite today's note
+    veilleur --date <ISO>    # re-render from an already-present matcha digest
+"""
+
 import argparse
 from datetime import date
 from pathlib import Path
@@ -16,6 +27,15 @@ from . import (
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the full veilleur pipeline once.
+
+    Args:
+        argv: Optional argument list (defaults to ``sys.argv`` via argparse).
+
+    Returns:
+        Process exit code: 0 on success or a benign skip, 1 if ``--date`` was
+        given but no matcha digest exists for that day.
+    """
     parser = argparse.ArgumentParser(prog="veilleur")
     parser.add_argument("--config", default="~/.config/veilleur/veilleur.toml")
     parser.add_argument("--force", action="store_true")
@@ -45,8 +65,9 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 1
         digest_path = matcha_runner.run_matcha(cfg, today=today)
+
     items = digest_parser.parse_digest(digest_path.read_text(encoding="utf-8"))
-    n_analyzed = len(items)
+    n_analyzed = len(items)  # total before triage, for the note's summary line
     if not items:
         print("Aucun item dans le digest matcha.")
         return 0

@@ -1,14 +1,16 @@
+"""Stage 2 — enrich: summarise an item and link it into the Zettelkasten.
+
+For each item that survived triage, fetch the article text and ask the LLM for
+a French summary, a one-line "why it matters", and connections to existing
+permanent notes. Enrichment is fault-isolated per item: if the LLM call fails,
+the item is flagged (``enrich_failed``) and returned rather than dropped, so one
+failure never sinks the whole digest.
+"""
+
+from collections.abc import Callable
+
 from . import llm
 from .models import Connection, Item
-
-
-def _clean_note_title(raw: str) -> str:
-    """Strip any surrounding [[ ]] the LLM may echo from the vault index, so the
-    renderer wraps the title exactly once (avoids broken [[[[...]]]] wikilinks)."""
-    title = raw.strip()
-    if title.startswith("[[") and title.endswith("]]"):
-        title = title[2:-2].strip()
-    return title
 
 _SYSTEM = (
     "Tu es l'assistant de veille d'un ingénieur. Pour un article donné, tu "
@@ -26,7 +28,40 @@ _INSTRUCTIONS = (
 )
 
 
-def enrich_item(item, vault_index_str, client, model, fetch):
+def _clean_note_title(raw: str) -> str:
+    """Strip any surrounding ``[[ ]]`` the LLM may echo from the vault index.
+
+    The index is presented to the model as ``[[Title]]`` lines, so it sometimes
+    returns the wrapped form. Stripping it here lets the renderer wrap the title
+    exactly once (avoids broken ``[[[[...]]]]`` wikilinks).
+    """
+    title = raw.strip()
+    if title.startswith("[[") and title.endswith("]]"):
+        title = title[2:-2].strip()
+    return title
+
+
+def enrich_item(
+    item: Item,
+    vault_index_str: str,
+    client,
+    model: str,
+    fetch: Callable[[str], str | None],
+) -> Item:
+    """Enrich a single item with a summary, a rationale and connections.
+
+    Args:
+        item: The item to enrich (mutated in place and returned).
+        vault_index_str: The formatted vault index (see ``vault_index``).
+        client: Anthropic client, passed through to :func:`llm.call_json`.
+        model: Anthropic model id.
+        fetch: Callable returning article text for a URL, or ``None`` on failure
+            (typically ``content_fetch.fetch_text``).
+
+    Returns:
+        The same ``item``, with ``summary``, ``why`` and ``connections`` filled
+        on success, or ``enrich_failed=True`` set if the LLM call failed.
+    """
     content = fetch(item.url)
     body = content if content else "(contenu indisponible — base-toi sur le titre)"
     user = (
@@ -35,14 +70,14 @@ def enrich_item(item, vault_index_str, client, model, fetch):
         f"NOTES EXISTANTES DU VAULT:\n{vault_index_str}\n\n{_INSTRUCTIONS}"
     )
     try:
-        data = llm.call_json(client, model, _SYSTEM, user, max_tokens=1500)
+        response = llm.call_json(client, model, _SYSTEM, user, max_tokens=1500)
     except llm.LLMError:
         item.enrich_failed = True
         return item
-    item.summary = data.get("summary", "")
-    item.why = data.get("why", "")
+    item.summary = response.get("summary", "")
+    item.why = response.get("why", "")
     item.connections = [
-        Connection(note_title=_clean_note_title(c["note"]), reason=c.get("reason", ""))
-        for c in data.get("connections", [])
+        Connection(note_title=_clean_note_title(conn["note"]), reason=conn.get("reason", ""))
+        for conn in response.get("connections", [])
     ]
     return item
